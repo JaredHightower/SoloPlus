@@ -4,9 +4,9 @@ let models = require("../models");
 let authService = require("../services/auth");
 
 /* GET users listing. */
-// router.get('/', function(req, res, next) {
-//   res.send('respond with a resource');
-// });
+router.get("/", function (req, res, next) {
+  res.send("respond with a resource");
+});
 
 //! SIGNUP
 
@@ -35,4 +35,33 @@ router.post("/signup", function (req, res, next) {
     });
 });
 
+//! Login Page
+router.post("/login", function (req, res, next) {
+  models.users
+    .findOne({
+      where: {
+        Username: req.body.username,
+      },
+    })
+    .then((user) => {
+      if (!user) {
+        console.log("User not found");
+        return res.status(401).json({
+          message: "USERNAME DOES NOT EXIST",
+        });
+      } else {
+        let passwordMatch = authService.comparePassword(
+          req.body.password,
+          user.Password
+        );
+        if (passwordMatch) {
+          let token = authService.signUser(user);
+          res.cookie("jwt", token);
+          res.send("LOGGED IN!");
+        } else {
+          res.send("WRONG PASSWORD");
+        }
+      }
+    });
+});
 module.exports = router;
