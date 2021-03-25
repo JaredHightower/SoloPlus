@@ -9,7 +9,6 @@ router.get("/", function (req, res, next) {
 });
 
 //! SIGNUP
-
 router.post("/signup", function (req, res, next) {
   models.users
     .findOrCreate({
@@ -35,7 +34,7 @@ router.post("/signup", function (req, res, next) {
     });
 });
 
-//! Login Page
+//! Login
 router.post("/login", function (req, res, next) {
   models.users
     .findOne({
@@ -64,4 +63,20 @@ router.post("/login", function (req, res, next) {
       }
     });
 });
+
+//! Profile
+router.get("/profile", function (req, res, next) {
+  let token = req.cookies.jwt;
+  if (token) {
+    authService.verifyUser(token).then((user) => {
+      if (user) {
+        res.send(JSON.stringify(user));
+      } else {
+        res.status(401);
+        res.send("INVALID TOKEN");
+      }
+    });
+  }
+});
+
 module.exports = router;
